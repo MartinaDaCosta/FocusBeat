@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.FocusBeat" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.FocusBeat.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#EEE8FF</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.FocusBeat</item>
+    </style>
+
+
 </resources>
