@@ -12,6 +12,7 @@ import com.example.focusbeat.ui.screens.SearchScreen
 import com.example.focusbeat.ui.screens.TimerScreen
 import com.example.focusbeat.ui.screens.FavouritesScreen
 import com.example.focusbeat.ui.screens.StatsScreen
+import com.example.focusbeat.viewmodel.PlayerViewModel
 
 sealed class Screen(val route: String) {
     object Home       : Screen("home")
@@ -22,7 +23,7 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun FocusBeatNavHost() {
+fun FocusBeatNavHost(playerViewModel: PlayerViewModel) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -33,7 +34,7 @@ fun FocusBeatNavHost() {
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Home.route)       { HomeScreen() }
+            composable(Screen.Home.route)       { HomeScreen(playerViewModel) }
             composable(Screen.Search.route)     { SearchScreen() }
             composable(Screen.Timer.route)      { TimerScreen() }
             composable(Screen.Favourites.route) { FavouritesScreen() }
