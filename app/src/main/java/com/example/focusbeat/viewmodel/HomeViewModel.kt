@@ -29,9 +29,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun toggleFavourite(trackId: String, isFav: Boolean) {
         viewModelScope.launch {
             if (isFav) {
-                favouriteDao.removeFavourite(
-                    com.example.focusbeat.data.model.Favourite(trackId)
-                )
+                favouriteDao.removeFavouriteById(trackId)
             } else {
                 favouriteDao.addFavourite(
                     com.example.focusbeat.data.model.Favourite(trackId)

@@ -10,13 +10,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavouriteDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addFavourite(fav: Favourite)
 
-    @Delete
-    suspend fun removeFavourite(fav: Favourite)
+    @Query("DELETE FROM favourites WHERE trackId = :trackId")
+    suspend fun removeFavouriteById(trackId: String)
 
-    @Query("SELECT * FROM favourites ORDER BY addedAt DESC")
+    @Query("SELECT * FROM favourites")
     fun getAllFavourites(): Flow<List<Favourite>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM favourites WHERE trackId = :trackId)")

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TrackDao {
+
     @Query("SELECT * FROM tracks WHERE mode = :mode")
     fun getTracksByMode(mode: String): Flow<List<Track>>
 
@@ -17,4 +18,7 @@ interface TrackDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(tracks: List<Track>)
+
+    @Query("SELECT COUNT(*) FROM tracks")
+    suspend fun getTrackCount(): Int
 }

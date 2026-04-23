@@ -6,6 +6,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Assessment
+import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,6 +14,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.focusbeat.ui.navigation.BottomNavItem
 import com.example.focusbeat.ui.theme.Primary
 import com.example.focusbeat.ui.theme.PrimaryContainer
 import com.example.focusbeat.ui.theme.PrimaryLight
@@ -29,7 +31,8 @@ val bottomNavItems = listOf(
     BottomNavItem(Screen.Search,     "Search",     Icons.Rounded.Search),
     BottomNavItem(Screen.Timer,      "Timer",      Icons.Rounded.AccessTime),
     BottomNavItem(Screen.Favourites, "Favourites", Icons.Rounded.Favorite),
-    BottomNavItem(Screen.Stats,      "Stats",      Icons.Rounded.Assessment)
+    BottomNavItem(Screen.Stats,      "Stats",      Icons.Rounded.Assessment),
+    BottomNavItem(Screen.Player, "Player", Icons.Rounded.LibraryMusic)
 )
 
 @Composable

@@ -14,9 +14,7 @@ class MainActivity : ComponentActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
         super.onCreate(savedInstanceState)
-        playerViewModel.initController(this)
         setContent {
             FocusBeatTheme {
                 FocusBeatNavHost(playerViewModel = playerViewModel)
