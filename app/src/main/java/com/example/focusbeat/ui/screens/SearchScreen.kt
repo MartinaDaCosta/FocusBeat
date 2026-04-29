@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 @Composable
-fun SearchScreen() {
+fun SearchScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = Modifier
             .fillMaxSize()

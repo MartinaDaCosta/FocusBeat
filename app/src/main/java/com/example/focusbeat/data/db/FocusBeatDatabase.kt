@@ -4,12 +4,17 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.focusbeat.data.db.FavouriteDao
+import com.example.focusbeat.data.db.SessionDao
+import com.example.focusbeat.data.db.TrackDao
+import com.example.focusbeat.data.db.UserDao
 import com.example.focusbeat.data.model.Favourite
 import com.example.focusbeat.data.model.Session
 import com.example.focusbeat.data.model.Track
+import com.example.focusbeat.data.model.User
 
 @Database(
-    entities = [Track::class, Favourite::class, Session::class],
+    entities = [Track::class, Favourite::class, User::class, Session::class],
     version = 1,
     exportSchema = false
 )
@@ -17,6 +22,7 @@ abstract class FocusBeatDatabase : RoomDatabase() {
 
     abstract fun trackDao(): TrackDao
     abstract fun favouriteDao(): FavouriteDao
+    abstract fun userDao(): UserDao
     abstract fun sessionDao(): SessionDao
 
     companion object {
@@ -27,8 +33,10 @@ abstract class FocusBeatDatabase : RoomDatabase() {
                 Room.databaseBuilder(
                     context.applicationContext,
                     FocusBeatDatabase::class.java,
-                    "focusbeat.db"
-                ).build().also { INSTANCE = it }
+                    "focusbeat_db"
+                )
+                    .fallbackToDestructiveMigration()
+                    .build().also { INSTANCE = it }
             }
     }
 }

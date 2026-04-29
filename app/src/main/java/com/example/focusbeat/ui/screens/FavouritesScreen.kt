@@ -1,28 +1,14 @@
 package com.example.focusbeat.ui.screens
+
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,10 +21,12 @@ import com.example.focusbeat.data.model.Track
 @Composable
 fun FavouritesScreen(
     favouriteTracks: List<Track>,
-    onPlayClick: (Track) -> Unit
+    onPlayClick: (Track) -> Unit,
+    onToggleFavourite: (trackId: String) -> Unit,   // ← SIN isFavourite
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
@@ -68,7 +56,8 @@ fun FavouritesScreen(
                 items(favouriteTracks) { track ->
                     FavouriteTrackCard(
                         track = track,
-                        onPlayClick = { onPlayClick(track) }
+                        onPlayClick = { onPlayClick(track) },
+                        onRemove = { onToggleFavourite(track.id) }   // ← SIN isFav
                     )
                 }
             }
@@ -79,14 +68,13 @@ fun FavouritesScreen(
 @Composable
 fun FavouriteTrackCard(
     track: Track,
-    onPlayClick: () -> Unit
+    onPlayClick: () -> Unit,
+    onRemove: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Row(
@@ -96,9 +84,7 @@ fun FavouriteTrackCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = track.title,
                     style = MaterialTheme.typography.titleLarge,
@@ -116,36 +102,34 @@ fun FavouriteTrackCard(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
+                TextButton(
+                    onClick = onPlayClick,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(modeChipBackground(track.mode))
+                        .height(34.dp)
                 ) {
-                    TextButton(
-                        onClick = onPlayClick,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(modeChipBackground(track.mode))
-                            .height(34.dp)
-                    ) {
-                        Text(
-                            text = modeChipLabel(track.mode),
-                            color = modeChipText(track.mode),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
+                    Text(
+                        text = modeChipLabel(track.mode),
+                        color = modeChipText(track.mode),
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.width(12.dp))
 
             Box(
-                modifier = Modifier.padding(top = 6.dp),
+                modifier = Modifier
+                    .padding(top = 6.dp)
+                    .clickable { onRemove() },
                 contentAlignment = Alignment.TopEnd
             ) {
                 Icon(
                     imageVector = Icons.Default.Favorite,
-                    contentDescription = "Favourite",
+                    contentDescription = "Quitar de favoritos",
                     tint = Color(0xFFFF7F8F),
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
         }
@@ -160,18 +144,14 @@ fun EmptyFavouritesState() {
         color = Color.White,
         shadowElevation = 3.dp
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp)
-        ) {
+        Column(modifier = Modifier.padding(24.dp)) {
             Text(
                 text = "No favourite songs yet",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color(0xFF5B5873),
                 fontWeight = FontWeight.SemiBold
             )
-
             Spacer(modifier = Modifier.height(6.dp))
-
             Text(
                 text = "Tap the heart in the player to save songs here.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -181,42 +161,34 @@ fun EmptyFavouritesState() {
     }
 }
 
-fun formatMode(mode: String): String {
-    return when (mode.lowercase()) {
-        "focus" -> "Focus"
-        "relaxation" -> "Nature"
-        "reading" -> "Ambient"
-        "deep_work" -> "Deep Work"
-        else -> mode.replaceFirstChar { it.uppercase() }
-    }
+fun formatMode(mode: String): String = when (mode.lowercase()) {
+    "focus"      -> "Focus"
+    "relaxation" -> "Nature"
+    "reading"    -> "Ambient"
+    "deep_work"  -> "Deep Work"
+    else         -> mode.replaceFirstChar { it.uppercase() }
 }
 
-fun modeChipLabel(mode: String): String {
-    return when (mode.lowercase()) {
-        "focus" -> "Focus"
-        "relaxation" -> "Relax"
-        "reading" -> "Reading"
-        "deep_work" -> "Deep Work"
-        else -> mode
-    }
+fun modeChipLabel(mode: String): String = when (mode.lowercase()) {
+    "focus"      -> "Focus"
+    "relaxation" -> "Relax"
+    "reading"    -> "Reading"
+    "deep_work"  -> "Deep Work"
+    else         -> mode
 }
 
-fun modeChipBackground(mode: String): Color {
-    return when (mode.lowercase()) {
-        "focus" -> Color(0xFFEDE7FF)
-        "relaxation" -> Color(0xFFDDF8F1)
-        "reading" -> Color(0xFFFFE7E7)
-        "deep_work" -> Color(0xFFF1E6FF)
-        else -> Color(0xFFEDEDED)
-    }
+fun modeChipBackground(mode: String): Color = when (mode.lowercase()) {
+    "focus"      -> Color(0xFFEDE7FF)
+    "relaxation" -> Color(0xFFDDF8F1)
+    "reading"    -> Color(0xFFFFE7E7)
+    "deep_work"  -> Color(0xFFF1E6FF)
+    else         -> Color(0xFFEDEDED)
 }
 
-fun modeChipText(mode: String): Color {
-    return when (mode.lowercase()) {
-        "focus" -> Color(0xFF8A6DFF)
-        "relaxation" -> Color(0xFF3DB7A3)
-        "reading" -> Color(0xFFFF7B7B)
-        "deep_work" -> Color(0xFF9D7BFF)
-        else -> Color(0xFF666666)
-    }
+fun modeChipText(mode: String): Color = when (mode.lowercase()) {
+    "focus"      -> Color(0xFF8A6DFF)
+    "relaxation" -> Color(0xFF3DB7A3)
+    "reading"    -> Color(0xFFFF7B7B)
+    "deep_work"  -> Color(0xFF9D7BFF)
+    else         -> Color(0xFF666666)
 }

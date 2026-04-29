@@ -30,9 +30,8 @@ val bottomNavItems = listOf(
     BottomNavItem(Screen.Home,       "Home",       Icons.Rounded.Home),
     BottomNavItem(Screen.Search,     "Search",     Icons.Rounded.Search),
     BottomNavItem(Screen.Timer,      "Timer",      Icons.Rounded.AccessTime),
-    BottomNavItem(Screen.Favourites, "Favourites", Icons.Rounded.Favorite),
-    BottomNavItem(Screen.Stats,      "Stats",      Icons.Rounded.Assessment),
-    BottomNavItem(Screen.Player, "Player", Icons.Rounded.LibraryMusic)
+    BottomNavItem(Screen.Favourites, "Favs", Icons.Rounded.Favorite),
+    BottomNavItem(Screen.Stats,      "Stats",      Icons.Rounded.Assessment)
 )
 
 @Composable

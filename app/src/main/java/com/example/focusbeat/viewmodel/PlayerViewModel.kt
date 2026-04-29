@@ -6,15 +6,13 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.example.focusbeat.data.SessionManager
 import com.example.focusbeat.data.db.FocusBeatDatabase
-import com.example.focusbeat.data.model.Favourite
 import com.example.focusbeat.data.model.Track
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class PlayerViewModel(application: Application) : AndroidViewModel(application) {
@@ -23,6 +21,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     private val trackDao = database.trackDao()
     private val favouriteDao = database.favouriteDao()
 
+    private val session = SessionManager(application)
     val exoPlayer: ExoPlayer = ExoPlayer.Builder(application).build()
 
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
@@ -216,32 +215,18 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun isFavourite(trackId: String): Flow<Boolean> {
-        return favouriteDao.isFavourite(trackId)
-    }
-
-    fun toggleFavourite(trackId: String, isFavourite: Boolean) {
-        viewModelScope.launch {
-            if (isFavourite) {
-                favouriteDao.removeFavouriteById(trackId)
-            } else {
-                favouriteDao.addFavourite(Favourite(trackId = trackId))
-            }
-        }
-    }
-
-    fun getFavouriteTracks(): Flow<List<Track>> {
-        return combine(
-            trackDao.getAllTracks(),
-            favouriteDao.getAllFavourites()
-        ) { tracks, favourites ->
-            val favouriteIds = favourites.map { it.trackId }.toSet()
-            tracks.filter { it.id in favouriteIds }
-        }
-    }
-
     override fun onCleared() {
+        exoPlayer.stop()
         exoPlayer.release()
         super.onCleared()
     }
+
+    fun stopAndReset() {
+        exoPlayer.stop()
+        exoPlayer.clearMediaItems()
+        _isPlaying.value = false
+        _currentTrack.value = null
+    }
+
+
 }

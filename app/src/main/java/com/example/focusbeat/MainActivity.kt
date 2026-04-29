@@ -3,21 +3,27 @@ package com.example.focusbeat
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
+import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.focusbeat.ui.navigation.FocusBeatNavHost
 import com.example.focusbeat.ui.theme.FocusBeatTheme
+import com.example.focusbeat.viewmodel.AuthViewModel
 import com.example.focusbeat.viewmodel.PlayerViewModel
 
 class MainActivity : ComponentActivity() {
-
-    private val playerViewModel: PlayerViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             FocusBeatTheme {
-                FocusBeatNavHost(playerViewModel = playerViewModel)
+                val playerViewModel: PlayerViewModel = viewModel()
+                val authViewModel: AuthViewModel = viewModel()
+                FocusBeatNavHost(
+                    playerViewModel = playerViewModel,
+                    authViewModel = authViewModel
+                )
             }
         }
     }
