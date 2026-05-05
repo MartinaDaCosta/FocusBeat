@@ -70,6 +70,9 @@ dependencies {
     //Iconos
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
 
+    //Notificaciones
+    implementation("androidx.core:core-ktx:1.12.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

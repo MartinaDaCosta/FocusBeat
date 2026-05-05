@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.focusbeat.ui.components.NotificationHelper
 
 enum class TimerMode(val label: String, val durationMs: Long) {
     FOCUS("Focus", 25 * 60 * 1000L),
@@ -87,6 +88,12 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     private fun onTimerFinished() {
         _isRunning.value = false
 
+        // Mostrar notificación
+        NotificationHelper.showPomodoroFinishedNotification(
+            context = getApplication(),
+            mode = _mode.value.label
+        )
+
         // Guardar sesión en Room
         viewModelScope.launch {
             val now = System.currentTimeMillis()
@@ -121,4 +128,5 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             _timeLeftMs.value = durationMs
         }
     }
+
 }
