@@ -24,6 +24,7 @@ abstract class FocusBeatDatabase : RoomDatabase() {
     abstract fun favouriteDao(): FavouriteDao
     abstract fun userDao(): UserDao
     abstract fun sessionDao(): SessionDao
+    abstract fun statsDao(): StatsDao
 
     companion object {
         @Volatile private var INSTANCE: FocusBeatDatabase? = null
