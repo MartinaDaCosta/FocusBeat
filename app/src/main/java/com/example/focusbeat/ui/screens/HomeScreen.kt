@@ -9,17 +9,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.focusbeat.data.model.Track
 import com.example.focusbeat.ui.theme.PrimaryLight
+import com.example.focusbeat.ui.theme.PinkFavourite
+
 
 @Composable
 fun HomeScreen(
@@ -32,50 +36,60 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .padding(horizontal = 16.dp)
-            .padding(top = 16.dp)
     ) {
+        // Cabecera con saludo y título de pantalla
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
+                // Texto pequeño
                 Text(
                     text = "Good vibes,",
-                    fontSize = 13.sp,
-                    color = PrimaryLight
+                    style = MaterialTheme.typography.labelMedium,
+                    color = PrimaryLight,
+                    fontSize = 13.sp
                 )
+                // Título principal
                 Text(
                     text = "What's on today?",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Subtítulo de sección
         Text(
             text = "Recommended",
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Lista de pistas recomendadas
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(tracks) { track ->
                 val isFav = track.id in favouriteIds
 
+                // Cada pista se muestra como una Card de Material 3
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onPlayClick(track) },
-                    shape = RoundedCornerShape(20.dp)
+                        .clickable { onPlayClick(track) }, // Al pulsar abrimos el reproductor
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
                 ) {
                     Row(
                         modifier = Modifier
@@ -85,6 +99,7 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            // Pequeño bloque de color que indica el modo de la pista
                             Box(
                                 modifier = Modifier
                                     .size(38.dp)
@@ -93,24 +108,31 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
+                                // Título de la pista (nombre de la canción)
                                 Text(
                                     text = track.title,
-                                    style = MaterialTheme.typography.titleMedium
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
+                                // Subtítulo que describe el tipo/mood de la pista
                                 Text(
                                     text = subtitleForMode(track.mode),
-                                    style = MaterialTheme.typography.bodyMedium
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
 
+                        // Icono de favorito: rosa cuando está activo, gris del tema cuando no
                         Icon(
                             imageVector = if (isFav) Icons.Filled.Favorite
                             else Icons.Outlined.FavoriteBorder,
                             contentDescription = "Favourite",
-                            tint = if (isFav) Color(0xFFFF7F8F) else Color.Gray,
+                            tint = if (isFav) PinkFavourite
+                            else MaterialTheme.colorScheme.outline,
                             modifier = Modifier.clickable {
-                                onToggleFavourite(track.id)   // ← SIN isFav
+                                // Alternamos el estado de favorito para esta pista
+                                onToggleFavourite(track.id)
                             }
                         )
                     }
@@ -120,14 +142,24 @@ fun HomeScreen(
     }
 }
 
-fun trackColor(mode: String): Color = when (mode.lowercase()) {
-    "focus"      -> Color(0xFFBEB8F4)
-    "relaxation" -> Color(0xFF8EDFD0)
-    "reading"    -> Color(0xFFF4B4B4)
-    "deep_work"  -> Color(0xFFD9C2FF)
-    else         -> Color.LightGray
-}
+/**
+ * Devuelve un color de fondo para el “pill” según el modo de la pista.
+ * Usamos colores derivados del colorScheme para que respeten el tema
+ */
+@Composable
+fun trackColor(mode: String) =
+    when (mode.lowercase()) {
+        "focus"      -> MaterialTheme.colorScheme.primaryContainer
+        "relaxation" -> MaterialTheme.colorScheme.secondaryContainer
+        "reading"    -> MaterialTheme.colorScheme.tertiaryContainer
+        "deep_work"  -> MaterialTheme.colorScheme.surfaceVariant
+        else         -> MaterialTheme.colorScheme.surface
+    }
 
+/**
+ * Texto descriptivo que acompaña al modo.
+ * Ayuda para saber que tipo de sonido es cada pista.
+ */
 fun subtitleForMode(mode: String): String = when (mode.lowercase()) {
     "focus"      -> "Ambient"
     "relaxation" -> "Nature"

@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
@@ -34,11 +33,13 @@ fun TimerScreen(
     timerViewModel: TimerViewModel = viewModel(),
     onMusicClick: (() -> Unit)? = null
 ) {
-    val mode        by timerViewModel.mode.collectAsState()
-    val timeLeftMs  by timerViewModel.timeLeftMs.collectAsState()
-    val isRunning   by timerViewModel.isRunning.collectAsState()
-    val currentSession  by timerViewModel.currentSession.collectAsState()
-    val pomodorosToday  by timerViewModel.pomodorosToday.collectAsState()
+    val colorScheme = MaterialTheme.colorScheme
+
+    val mode           by timerViewModel.mode.collectAsState()
+    val timeLeftMs     by timerViewModel.timeLeftMs.collectAsState()
+    val isRunning      by timerViewModel.isRunning.collectAsState()
+    val currentSession by timerViewModel.currentSession.collectAsState()
+    val pomodorosToday by timerViewModel.pomodorosToday.collectAsState()
 
     val progress = timeLeftMs.toFloat() / mode.durationMs.toFloat()
 
@@ -49,19 +50,16 @@ fun TimerScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F3FF))
+            .background(colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp)
-            .padding(bottom = 32.dp),
+            .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
-
         Text(
             text = "Pomodoro",
-            fontSize = 22.sp,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF2D1B69)
+            color = colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -76,13 +74,14 @@ fun TimerScreen(
                     label = {
                         Text(
                             text = m.label,
-                            fontSize = 13.sp,
-                            color = if (selected) Color.White else Color(0xFF6C63FF)
+                            style = MaterialTheme.typography.labelLarge,
+                            color = if (selected) colorScheme.onPrimary
+                            else colorScheme.primary
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF6C63FF),
-                        containerColor = Color(0xFFEDE9FF)
+                        selectedContainerColor = colorScheme.primary,
+                        containerColor = colorScheme.primaryContainer
                     )
                 )
             }
@@ -90,7 +89,7 @@ fun TimerScreen(
 
         Spacer(modifier = Modifier.height(36.dp))
 
-        // ── Selector circular estilo Forest ───────────────
+        // ── Selector circular / círculo de progreso ───────
         if (!isRunning) {
             ForestCircularPicker(
                 minutes = customMinutes,
@@ -103,7 +102,6 @@ fun TimerScreen(
                 size = 260.dp
             )
         } else {
-            // Cuando corre, muestra el círculo de progreso normal
             CircularTimer(
                 progress = progress,
                 timeLeftMs = timeLeftMs,
@@ -122,8 +120,8 @@ fun TimerScreen(
                         .size(12.dp)
                         .clip(CircleShape)
                         .background(
-                            if (index < currentSession) Color(0xFF6C63FF)
-                            else Color(0xFFD5D0F0)
+                            if (index < currentSession) colorScheme.primary
+                            else colorScheme.surfaceVariant
                         )
                 )
             }
@@ -133,8 +131,8 @@ fun TimerScreen(
 
         Text(
             text = "Session $currentSession of 4",
-            fontSize = 13.sp,
-            color = Color(0xFF8E8AAE)
+            style = MaterialTheme.typography.labelMedium,
+            color = colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -145,22 +143,28 @@ fun TimerScreen(
                 if (isRunning) timerViewModel.pause()
                 else timerViewModel.startOrResume()
             },
-            modifier = Modifier.width(160.dp).height(50.dp),
+            modifier = Modifier
+                .width(160.dp)
+                .height(50.dp),
             shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6C63FF))
+            colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
         ) {
             Text(
                 text = if (isRunning) "Pause" else "Start",
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White
+                color = colorScheme.onPrimary
             )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
         TextButton(onClick = { timerViewModel.reset() }) {
-            Text(text = "Reset", color = Color(0xFF8E8AAE), fontSize = 14.sp)
+            Text(
+                text = "Reset",
+                style = MaterialTheme.typography.labelLarge,
+                color = colorScheme.onSurfaceVariant
+            )
         }
 
         Spacer(modifier = Modifier.height(28.dp))
@@ -168,7 +172,7 @@ fun TimerScreen(
         // ── Pomodoros hoy ──────────────────────────────────
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = Color(0xFFEDE9FF),
+            color = colorScheme.surfaceVariant,
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -176,12 +180,16 @@ fun TimerScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Pomodoros today", fontSize = 14.sp, color = Color(0xFF5C566F))
+                Text(
+                    text = "Pomodoros today",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colorScheme.onSurfaceVariant
+                )
                 Text(
                     text = pomodorosToday.toString(),
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF6C63FF)
+                    color = colorScheme.primary
                 )
             }
         }
@@ -189,7 +197,11 @@ fun TimerScreen(
         if (onMusicClick != null) {
             Spacer(modifier = Modifier.height(12.dp))
             TextButton(onClick = onMusicClick) {
-                Text(text = "🎵 Change study music", color = Color(0xFF6C63FF), fontSize = 13.sp)
+                Text(
+                    text = "🎵 Change study music",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colorScheme.primary
+                )
             }
         }
     }
@@ -204,7 +216,8 @@ fun ForestCircularPicker(
     maxMinutes: Int = 90,
     size: Dp = 260.dp
 ) {
-    // Convierte minutos a ángulo (empieza en la parte superior, -90°)
+    val colorScheme = MaterialTheme.colorScheme
+
     fun minutesToAngle(mins: Int): Float {
         val fraction = (mins - minMinutes).toFloat() / (maxMinutes - minMinutes).toFloat()
         return fraction * 360f
@@ -231,10 +244,10 @@ fun ForestCircularPicker(
                         change.consume()
                         val center = Offset(size.toPx() / 2f, size.toPx() / 2f)
                         val pos = change.position
-                        // Ángulo desde el centro, 0° = arriba
                         val dx = pos.x - center.x
                         val dy = pos.y - center.y
-                        val rawAngle = Math.toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat() + 90f
+                        val rawAngle =
+                            Math.toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat() + 90f
                         val newAngle = ((rawAngle % 360f) + 360f) % 360f
                         sweepAngle = newAngle
                         onMinutesChange(angleToMinutes(newAngle))
@@ -252,9 +265,9 @@ fun ForestCircularPicker(
             val arcSize = Size(diameter, diameter)
             val radius = diameter / 2f
 
-            // Pista de fondo — arco completo gris
+            // Pista de fondo
             drawArc(
-                color = Color(0xFFD5D0F0),
+                color = colorScheme.surfaceVariant,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -263,9 +276,9 @@ fun ForestCircularPicker(
                 style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
             )
 
-            // Arco de progreso — violeta
+            // Arco de progreso
             drawArc(
-                color = Color(0xFF6C63FF),
+                color = colorScheme.primary,
                 startAngle = -90f,
                 sweepAngle = sweepAngle,
                 useCenter = false,
@@ -274,43 +287,40 @@ fun ForestCircularPicker(
                 style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
             )
 
-            // Thumb — círculo verde como Forest
+            // Thumb
             val thumbAngleRad = Math.toRadians((sweepAngle - 90f).toDouble())
             val cx = this.size.width / 2f + radius * cos(thumbAngleRad).toFloat()
             val cy = this.size.height / 2f + radius * sin(thumbAngleRad).toFloat()
 
-            // Sombra del thumb
             drawCircle(
-                color = Color(0x336C63FF),
+                color = colorScheme.primary.copy(alpha = 0.2f),
                 radius = thumbRadius + 6.dp.toPx(),
                 center = Offset(cx, cy)
             )
-            // Thumb blanco con borde violeta
             drawCircle(
-                color = Color.White,
+                color = colorScheme.surface,
                 radius = thumbRadius,
                 center = Offset(cx, cy)
             )
             drawCircle(
-                color = Color(0xFF6C63FF),
+                color = colorScheme.primary,
                 radius = thumbRadius,
                 center = Offset(cx, cy),
                 style = Stroke(width = 3.dp.toPx())
             )
         }
 
-        // Texto central
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "$minutes",
-                fontSize = 52.sp,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2D1B69)
+                color = colorScheme.onBackground
             )
             Text(
                 text = "minutes",
-                fontSize = 14.sp,
-                color = Color(0xFF8E8AAE),
+                style = MaterialTheme.typography.labelMedium,
+                color = colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -325,6 +335,8 @@ fun CircularTimer(
     isRunning: Boolean,
     size: Dp
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
         animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing),
@@ -354,8 +366,9 @@ fun CircularTimer(
             )
             val arcSize = Size(diameter, diameter)
 
+            // Pista
             drawArc(
-                color = Color(0xFFD5D0F0),
+                color = colorScheme.surfaceVariant,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -363,8 +376,9 @@ fun CircularTimer(
                 size = arcSize,
                 style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
             )
+            // Progreso
             drawArc(
-                color = Color(0xFF6C63FF),
+                color = colorScheme.primary,
                 startAngle = -90f,
                 sweepAngle = 360f * animatedProgress,
                 useCenter = false,
@@ -378,7 +392,7 @@ fun CircularTimer(
             text = "%02d:%02d".format(minutes, seconds),
             fontSize = (42 * pulseScale).sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF2D1B69)
+            color = colorScheme.onBackground
         )
     }
 }

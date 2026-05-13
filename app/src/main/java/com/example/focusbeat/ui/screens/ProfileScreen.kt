@@ -2,8 +2,10 @@ package com.example.focusbeat.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Assessment
@@ -20,13 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.focusbeat.ui.theme.Primary
-import com.example.focusbeat.ui.theme.PrimaryContainer
-import com.example.focusbeat.ui.theme.PrimaryDark
-import com.example.focusbeat.ui.theme.TextSecondary
 import com.example.focusbeat.viewmodel.AuthViewModel
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun ProfileScreen(
@@ -36,40 +32,43 @@ fun ProfileScreen(
     onFavourites: () -> Unit,
     onStats: () -> Unit,
     onEditProfile: () -> Unit,
-
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     val currentUser by authViewModel.currentUser.collectAsState()
     val email = currentUser?.email ?: "Usuario"
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(colorScheme.background)
             .systemBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp)
     ) {
-        //Top bar
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.Default.ArrowBackIosNew,
                     contentDescription = "Volver",
-                    tint = Primary
+                    tint = colorScheme.primary
                 )
             }
             Text(
                 text = "Mi perfil",
-                style = MaterialTheme.typography.titleLarge,
+                style = typography.titleLarge,
                 fontWeight = FontWeight.Bold,
+                color = colorScheme.onBackground,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
 
-        //avatar + email
+        Spacer(modifier = Modifier.height(24.dp))
+
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -78,13 +77,13 @@ fun ProfileScreen(
                 modifier = Modifier
                     .size(88.dp)
                     .clip(CircleShape)
-                    .background(Primary),
+                    .background(colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = email.first().uppercaseChar().toString(),
                     fontSize = 36.sp,
-                    color = Color.White,
+                    color = colorScheme.onPrimary,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -93,24 +92,23 @@ fun ProfileScreen(
 
             Text(
                 text = email,
-                fontSize = 16.sp,
-                color = PrimaryDark,
-                fontWeight = FontWeight.SemiBold
+                style = typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = colorScheme.onBackground
             )
             Text(
                 text = "Cuenta FocusBeat",
-                fontSize = 13.sp,
-                color = TextSecondary
+                style = typography.labelMedium,
+                color = colorScheme.onSurfaceVariant
             )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Mi contenido
         Text(
             text = "Mi contenido",
-            fontSize = 13.sp,
-            color = TextSecondary,
+            style = typography.labelMedium,
+            color = colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -128,11 +126,10 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Cuenta
         Text(
             text = "Cuenta",
-            fontSize = 13.sp,
-            color = TextSecondary,
+            style = typography.labelMedium,
+            color = colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -146,6 +143,7 @@ fun ProfileScreen(
         ProfileOption(
             icon = Icons.Default.ExitToApp,
             label = "Cerrar sesión",
+            tint = colorScheme.error,
             onClick = {
                 authViewModel.logout()
                 onLogout()
@@ -158,9 +156,12 @@ fun ProfileScreen(
 private fun ProfileOption(
     icon: ImageVector,
     label: String,
-    tint: Color = Primary,
+    tint: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     Card(
         onClick = onClick,
         modifier = Modifier
@@ -168,7 +169,7 @@ private fun ProfileOption(
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = PrimaryContainer.copy(alpha = 0.4f)
+            containerColor = colorScheme.surfaceVariant
         )
     ) {
         Row(
@@ -186,8 +187,8 @@ private fun ProfileOption(
             Spacer(modifier = Modifier.width(14.dp))
             Text(
                 text = label,
-                fontSize = 15.sp,
-                color = if (tint == Primary) PrimaryDark else tint,
+                style = typography.bodyMedium,
+                color = if (tint == colorScheme.primary) colorScheme.onSurface else tint,
                 fontWeight = FontWeight.Medium
             )
         }

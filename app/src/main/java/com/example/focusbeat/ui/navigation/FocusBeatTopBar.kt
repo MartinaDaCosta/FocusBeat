@@ -23,27 +23,19 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.focusbeat.R
-import com.example.focusbeat.ui.theme.*
 
 @Composable
 fun FocusBeatTopBar(
     onProfileClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(elevation = 6.dp, spotColor = Primary.copy(alpha = 0.2f))
-            .background(
-                Brush.horizontalGradient(
-                    colors = listOf(
-                        SurfaceLight,
-                        PrimaryContainer,
-                        SurfaceLight
-                    )
-                )
-            )
+            .background(colorScheme.surface)
     ) {
-        // Círculo
+        // Círculo de glow
         Box(
             modifier = Modifier
                 .size(100.dp)
@@ -51,7 +43,7 @@ fun FocusBeatTopBar(
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            PrimaryLight.copy(alpha = 0.25f),
+                            colorScheme.primary.copy(alpha = 0.25f),
                             Color.Transparent
                         )
                     ),
@@ -67,7 +59,6 @@ fun FocusBeatTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Logo y Nombre
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
@@ -78,24 +69,21 @@ fun FocusBeatTopBar(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(40.dp)
-                        .fillMaxSize()
                         .clip(CircleShape)
                 )
 
-
-                // Focus + Beat en dos colores
                 Text(
                     text = buildAnnotatedString {
                         withStyle(
                             SpanStyle(
-                                color = TextPrimary,
+                                color = colorScheme.onSurface,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 20.sp
                             )
                         ) { append("Focus") }
                         withStyle(
                             SpanStyle(
-                                color = Primary,
+                                color = colorScheme.primary,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 20.sp
                             )
@@ -104,19 +92,18 @@ fun FocusBeatTopBar(
                 )
             }
 
-            //Botón perfil
             Box(
                 modifier = Modifier
                     .shadow(
                         elevation = 4.dp,
                         shape = CircleShape,
-                        spotColor = Primary.copy(alpha = 0.3f)
+                        spotColor = colorScheme.primary.copy(alpha = 0.3f)
                     )
                     .size(42.dp)
                     .clip(CircleShape)
                     .background(
                         Brush.linearGradient(
-                            colors = listOf(Primary, AccentLilac)
+                            colors = listOf(colorScheme.primary, colorScheme.secondary)
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -128,7 +115,7 @@ fun FocusBeatTopBar(
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profile",
-                        tint = TextOnPrimary,
+                        tint = colorScheme.onPrimary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -136,7 +123,6 @@ fun FocusBeatTopBar(
         }
     }
 
-    // Divisor con gradiente
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -145,9 +131,9 @@ fun FocusBeatTopBar(
                 Brush.horizontalGradient(
                     colors = listOf(
                         Color.Transparent,
-                        AccentSoft,
-                        Primary.copy(alpha = 0.3f),
-                        AccentSoft,
+                        colorScheme.secondary.copy(alpha = 0.5f),
+                        colorScheme.primary.copy(alpha = 0.3f),
+                        colorScheme.secondary.copy(alpha = 0.5f),
                         Color.Transparent
                     )
                 )

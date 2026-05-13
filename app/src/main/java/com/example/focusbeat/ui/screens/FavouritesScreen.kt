@@ -13,27 +13,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.focusbeat.data.model.Track
+import com.example.focusbeat.ui.components.formatDuration
+
+private val FavouritePink = androidx.compose.ui.graphics.Color(0xFFFF7F8F)
 
 @Composable
 fun FavouritesScreen(
     favouriteTracks: List<Track>,
     onPlayClick: (Track) -> Unit,
-    onToggleFavourite: (trackId: String) -> Unit,   // ← SIN isFavourite
+    onToggleFavourite: (trackId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(colorScheme.background)
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
         Text(
             text = "Favourites",
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color(0xFF6C63FF),
+            style = typography.headlineMedium,
+            color = colorScheme.onBackground,
             fontWeight = FontWeight.Bold
         )
 
@@ -41,8 +47,8 @@ fun FavouritesScreen(
 
         Text(
             text = "${favouriteTracks.size} saved tracks",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF8E8AAE)
+            style = typography.bodyMedium,
+            color = colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -57,7 +63,7 @@ fun FavouritesScreen(
                     FavouriteTrackCard(
                         track = track,
                         onPlayClick = { onPlayClick(track) },
-                        onRemove = { onToggleFavourite(track.id) }   // ← SIN isFav
+                        onRemove = { onToggleFavourite(track.id) }
                     )
                 }
             }
@@ -71,10 +77,15 @@ fun FavouriteTrackCard(
     onPlayClick: () -> Unit,
     onRemove: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Row(
@@ -87,8 +98,8 @@ fun FavouriteTrackCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = track.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF5B5873),
+                    style = typography.titleLarge,
+                    color = colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
 
@@ -96,8 +107,8 @@ fun FavouriteTrackCard(
 
                 Text(
                     text = "${formatMode(track.mode)} • ${formatDuration(track.durationMs)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF9B97B3)
+                    style = typography.bodyMedium,
+                    color = colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -107,12 +118,18 @@ fun FavouriteTrackCard(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
                         .background(modeChipBackground(track.mode))
-                        .height(34.dp)
+                        .height(34.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = modeChipText(track.mode),
+                        containerColor = androidx.compose.ui.graphics.Color.Transparent
+                    )
                 ) {
                     Text(
                         text = modeChipLabel(track.mode),
-                        color = modeChipText(track.mode),
-                        fontWeight = FontWeight.SemiBold
+                        style = typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = modeChipText(track.mode)
                     )
                 }
             }
@@ -128,7 +145,7 @@ fun FavouriteTrackCard(
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = "Quitar de favoritos",
-                    tint = Color(0xFFFF7F8F),
+                    tint = FavouritePink,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -138,24 +155,27 @@ fun FavouriteTrackCard(
 
 @Composable
 fun EmptyFavouritesState() {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        color = Color.White,
+        color = colorScheme.surface,
         shadowElevation = 3.dp
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Text(
                 text = "No favourite songs yet",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFF5B5873),
+                style = typography.titleMedium,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Tap the heart in the player to save songs here.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF9B97B3)
+                style = typography.bodyMedium,
+                color = colorScheme.onSurfaceVariant
             )
         }
     }
@@ -177,18 +197,26 @@ fun modeChipLabel(mode: String): String = when (mode.lowercase()) {
     else         -> mode
 }
 
-fun modeChipBackground(mode: String): Color = when (mode.lowercase()) {
-    "focus"      -> Color(0xFFEDE7FF)
-    "relaxation" -> Color(0xFFDDF8F1)
-    "reading"    -> Color(0xFFFFE7E7)
-    "deep_work"  -> Color(0xFFF1E6FF)
-    else         -> Color(0xFFEDEDED)
+@Composable
+fun modeChipBackground(mode: String): androidx.compose.ui.graphics.Color {
+    val cs = MaterialTheme.colorScheme
+    return when (mode.lowercase()) {
+        "focus"      -> cs.primaryContainer
+        "relaxation" -> cs.secondaryContainer
+        "reading"    -> cs.tertiaryContainer
+        "deep_work"  -> cs.surfaceVariant
+        else         -> cs.surfaceVariant
+    }
 }
 
-fun modeChipText(mode: String): Color = when (mode.lowercase()) {
-    "focus"      -> Color(0xFF8A6DFF)
-    "relaxation" -> Color(0xFF3DB7A3)
-    "reading"    -> Color(0xFFFF7B7B)
-    "deep_work"  -> Color(0xFF9D7BFF)
-    else         -> Color(0xFF666666)
+@Composable
+fun modeChipText(mode: String): androidx.compose.ui.graphics.Color {
+    val cs = MaterialTheme.colorScheme
+    return when (mode.lowercase()) {
+        "focus"      -> cs.primary
+        "relaxation" -> cs.secondary
+        "reading"    -> cs.tertiary
+        "deep_work"  -> cs.onSurface
+        else         -> cs.onSurfaceVariant
+    }
 }

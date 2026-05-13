@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.focusbeat.viewmodel.FavouritesViewModel
+import com.example.focusbeat.viewmodel.StatsViewModel
 import com.example.focusbeat.viewmodel.TimerViewModel
 
 sealed class Screen(val route: String) {
@@ -147,7 +148,10 @@ fun FocusBeatNavHost(
                 )
             }
 
-            composable(Screen.Stats.route) { StatsScreen() }
+            composable(Screen.Stats.route) {
+                val statsViewModel: StatsViewModel = viewModel()
+                StatsScreen(viewModel = statsViewModel)
+            }
 
             composable(Screen.Profile.route) {
                 ProfileScreen(

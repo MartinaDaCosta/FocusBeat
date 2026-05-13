@@ -1,7 +1,9 @@
 package com.example.focusbeat.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -12,26 +14,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.focusbeat.ui.theme.Primary
-import com.example.focusbeat.ui.theme.PrimaryDark
-import com.example.focusbeat.ui.theme.PrimaryLight
-import com.example.focusbeat.ui.theme.TextSecondary
+import com.example.focusbeat.R
 import com.example.focusbeat.viewmodel.AuthState
 import com.example.focusbeat.viewmodel.AuthViewModel
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import com.example.focusbeat.R
 
 @Composable
 fun SignUpScreen(
@@ -39,6 +34,9 @@ fun SignUpScreen(
     onSignUpSuccess: () -> Unit,
     onGoToLogin: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -57,23 +55,24 @@ fun SignUpScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            // degradado basado en background/surface para que no rompa dark mode
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFFF0EEFF), Color(0xFFFFFFFF))
+                    colors = listOf(
+                        colorScheme.surfaceVariant,
+                        colorScheme.background
+                    )
                 )
             )
     ) {
-
-        // Contenido
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 32.dp),
+                .padding(horizontal = 32.dp)
+                .systemBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-
-            // Botón volver
             Row(modifier = Modifier.fillMaxWidth()) {
                 IconButton(onClick = {
                     authViewModel.resetState()
@@ -82,7 +81,7 @@ fun SignUpScreen(
                     Icon(
                         imageVector = Icons.Default.ArrowBackIosNew,
                         contentDescription = "Volver",
-                        tint = Primary
+                        tint = colorScheme.primary
                     )
                 }
             }
@@ -102,19 +101,18 @@ fun SignUpScreen(
 
             Text(
                 text = "Crear cuenta",
-                fontSize = 28.sp,
+                style = typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = PrimaryDark
+                color = colorScheme.onBackground
             )
             Text(
                 text = "Únete a FocusBeat",
-                fontSize = 14.sp,
-                color = TextSecondary
+                style = typography.bodyMedium,
+                color = colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Email
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -124,14 +122,15 @@ fun SignUpScreen(
                 shape = RoundedCornerShape(14.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
+                    focusedBorderColor = colorScheme.primary,
+                    unfocusedBorderColor = colorScheme.outline,
+                    focusedLabelColor = colorScheme.primary,
+                    cursorColor = colorScheme.primary
                 )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Contraseña
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -139,8 +138,11 @@ fun SignUpScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
-                visualTransformation = if (passwordVisible) VisualTransformation.None
-                else PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -148,19 +150,20 @@ fun SignUpScreen(
                             imageVector = if (passwordVisible) Icons.Default.VisibilityOff
                             else Icons.Default.Visibility,
                             contentDescription = null,
-                            tint = TextSecondary
+                            tint = colorScheme.onSurfaceVariant
                         )
                     }
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
+                    focusedBorderColor = colorScheme.primary,
+                    unfocusedBorderColor = colorScheme.outline,
+                    focusedLabelColor = colorScheme.primary,
+                    cursorColor = colorScheme.primary
                 )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Confirmar contraseña
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
@@ -171,14 +174,15 @@ fun SignUpScreen(
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    focusedLabelColor = Primary
+                    focusedBorderColor = colorScheme.primary,
+                    unfocusedBorderColor = colorScheme.outline,
+                    focusedLabelColor = colorScheme.primary,
+                    cursorColor = colorScheme.primary
                 )
             )
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // Error
             val errorMsg = when {
                 localError.isNotEmpty() -> localError
                 authState is AuthState.Error -> (authState as AuthState.Error).message
@@ -187,13 +191,12 @@ fun SignUpScreen(
             if (errorMsg.isNotEmpty()) {
                 Text(
                     text = errorMsg,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 13.sp,
+                    color = colorScheme.error,
+                    style = typography.labelMedium,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
             }
 
-            // Botón registro
             Button(
                 onClick = {
                     if (password != confirmPassword) {
@@ -208,28 +211,38 @@ fun SignUpScreen(
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary
+                )
             ) {
                 if (authState is AuthState.Loading) {
                     CircularProgressIndicator(
-                        color = Color.White,
+                        color = colorScheme.onPrimary,
                         modifier = Modifier.size(22.dp),
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text("Crear cuenta", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "Crear cuenta",
+                        style = typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
 
-        //¿Ya tienes cuenta?
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 50.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("¿Ya tienes cuenta? ", color = TextSecondary, fontSize = 14.sp)
+            Text(
+                text = "¿Ya tienes cuenta? ",
+                color = colorScheme.onSurfaceVariant,
+                fontSize = 14.sp
+            )
             TextButton(
                 onClick = {
                     authViewModel.resetState()
@@ -238,8 +251,8 @@ fun SignUpScreen(
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Text(
-                    "Inicia sesión",
-                    color = Primary,
+                    text = "Inicia sesión",
+                    color = colorScheme.primary,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp
                 )

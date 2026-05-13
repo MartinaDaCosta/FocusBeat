@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -36,11 +37,13 @@ val bottomNavItems = listOf(
 
 @Composable
 fun FocusBeatBottomBar(navController: NavHostController) {
+    val colorScheme = MaterialTheme.colorScheme
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = colorScheme.surface,
+        tonalElevation = 4.dp
     ) {
         bottomNavItems.forEach { item ->
             NavigationBarItem(
@@ -57,11 +60,11 @@ fun FocusBeatBottomBar(navController: NavHostController) {
                 icon = { Icon(item.icon, contentDescription = item.label) },
                 label = { Text(item.label) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor   = Primary,
-                    selectedTextColor   = Primary,
-                    unselectedIconColor = PrimaryLight,
-                    unselectedTextColor = PrimaryLight,
-                    indicatorColor      = PrimaryContainer
+                    selectedIconColor   = colorScheme.primary,
+                    selectedTextColor   = colorScheme.primary,
+                    unselectedIconColor = colorScheme.onSurfaceVariant,
+                    unselectedTextColor = colorScheme.onSurfaceVariant,
+                    indicatorColor      = colorScheme.primaryContainer
                 )
             )
         }

@@ -1,4 +1,4 @@
-package com.example.focusbeat.ui.screens
+package com.example.focusbeat.ui.components
 
 fun formatDuration(durationMs: Long): String {
     val totalSeconds = durationMs / 1000

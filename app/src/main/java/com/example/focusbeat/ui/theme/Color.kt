@@ -31,3 +31,5 @@ val TextOnPrimary       = Color(0xFFFFFFFF)
 // Dark mode
 val BackgroundDark      = Color(0xFF1A1825)
 val SurfaceDark         = Color(0xFF252235)
+
+val PinkFavourite = Color(0xFFFF7F8F)
