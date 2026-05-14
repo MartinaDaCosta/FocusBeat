@@ -53,18 +53,28 @@ class FavouritesViewModel(application: Application) : AndroidViewModel(applicati
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun toggleFavourite(trackId: String) {
+    fun toggleFavourite(track: Track) {
         val uid = _userId.value
         if (uid == -1) return
+
         viewModelScope.launch {
             try {
-                val yaEsFavorito = favouriteDao.isFavourite(trackId, uid)
+                val yaEsFavorito = favouriteDao.isFavourite(track.id, uid)
+
                 if (yaEsFavorito) {
-                    favouriteDao.removeFavouriteById(trackId, uid)
-                    android.util.Log.d("FAV", "❌ Eliminado trackId=$trackId userId=$uid")
+                    favouriteDao.removeFavouriteById(track.id, uid)
+                    android.util.Log.d("FAV", "❌ Eliminado trackId=${track.id} userId=$uid")
                 } else {
-                    favouriteDao.addFavourite(Favourite(trackId = trackId, userId = uid))
-                    android.util.Log.d("FAV", "✅ Añadido trackId=$trackId userId=$uid")
+                    trackDao.insertAll(listOf(track))
+
+                    favouriteDao.addFavourite(
+                        Favourite(
+                            trackId = track.id,
+                            userId = uid
+                        )
+                    )
+
+                    android.util.Log.d("FAV", "✅ Añadido trackId=${track.id} userId=$uid")
                 }
             } catch (e: Exception) {
                 android.util.Log.e("FAV", "Error: ${e.message}")

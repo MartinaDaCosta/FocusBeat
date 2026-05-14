@@ -24,7 +24,7 @@ private val FavouritePink = androidx.compose.ui.graphics.Color(0xFFFF7F8F)
 fun FavouritesScreen(
     favouriteTracks: List<Track>,
     onPlayClick: (Track) -> Unit,
-    onToggleFavourite: (trackId: String) -> Unit,
+    onToggleFavourite: (Track) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -57,13 +57,14 @@ fun FavouritesScreen(
             EmptyFavouritesState()
         } else {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                contentPadding = PaddingValues(bottom = 32.dp)
             ) {
                 items(favouriteTracks) { track ->
                     FavouriteTrackCard(
                         track = track,
                         onPlayClick = { onPlayClick(track) },
-                        onRemove = { onToggleFavourite(track.id) }
+                        onRemove = { onToggleFavourite(track) }
                     )
                 }
             }

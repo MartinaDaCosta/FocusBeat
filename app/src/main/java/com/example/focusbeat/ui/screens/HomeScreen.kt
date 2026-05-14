@@ -29,10 +29,16 @@ import com.example.focusbeat.ui.theme.PinkFavourite
 fun HomeScreen(
     tracks: List<Track>,
     onPlayClick: (Track) -> Unit,
-    onToggleFavourite: (trackId: String) -> Unit,
+    onToggleFavourite: (Track) -> Unit,
     favouriteIds: Set<String>,
     modifier: Modifier = Modifier
 ) {
+    val recommendedTracks = listOfNotNull(
+        tracks.firstOrNull { it.mode == "focus" },
+        tracks.firstOrNull { it.mode == "deep_work" },
+        tracks.firstOrNull { it.mode == "reading" },
+        tracks.firstOrNull { it.mode == "relaxation" }
+    )
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -78,7 +84,7 @@ fun HomeScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(tracks) { track ->
+            items(recommendedTracks) { track ->
                 val isFav = track.id in favouriteIds
 
                 // Cada pista se muestra como una Card de Material 3
@@ -124,7 +130,7 @@ fun HomeScreen(
                         }
 
                         // Icono de favorito: rosa cuando está activo, gris del tema cuando no
-                        Icon(
+                        /*Icon(
                             imageVector = if (isFav) Icons.Filled.Favorite
                             else Icons.Outlined.FavoriteBorder,
                             contentDescription = "Favourite",
@@ -132,9 +138,9 @@ fun HomeScreen(
                             else MaterialTheme.colorScheme.outline,
                             modifier = Modifier.clickable {
                                 // Alternamos el estado de favorito para esta pista
-                                onToggleFavourite(track.id)
+                                onToggleFavourite(track)
                             }
-                        )
+                        )*/
                     }
                 }
             }

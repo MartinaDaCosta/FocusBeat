@@ -188,7 +188,7 @@ fun PlayerScreen(
             IconButton(
                 onClick = {
                     currentTrack?.let {
-                        favouritesViewModel.toggleFavourite(it.id)
+                        favouritesViewModel.toggleFavourite(it)
                     }
                 }
             ) {

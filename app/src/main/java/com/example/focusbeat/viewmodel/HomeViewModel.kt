@@ -28,30 +28,23 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         .getAllTracks()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun toggleFavourite(trackId: String, isFav: Boolean) {
+    fun toggleFavourite(track: Track, isFav: Boolean) {
         val userId = session.getUserId()
         if (userId == -1) return
+
         viewModelScope.launch {
             if (isFav) {
-                favouriteDao.removeFavouriteById(trackId, userId)
+                favouriteDao.removeFavouriteById(track.id, userId)
             } else {
-                favouriteDao.addFavourite(Favourite(trackId = trackId, userId = userId))
+                trackDao.insertAll(listOf(track))
+
+                favouriteDao.addFavourite(
+                    Favourite(
+                        trackId = track.id,
+                        userId = userId
+                    )
+                )
             }
         }
     }
-
-    fun preloadTracksIfEmpty() {
-        viewModelScope.launch {
-            val tracks = trackDao.getAllTracks().first()  // ← first() en vez de collect
-            if (tracks.isEmpty()) trackDao.insertAll(sampleTracks)
-        }
-    }
 }
-
-val sampleTracks = listOf(
-    Track("1", "Rain & Piano",  "Ambients", "focus",      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", 240000),
-    Track("2", "Forest Sounds", "Nature",   "relaxation", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", 180000),
-    Track("3", "Cafe Noise",    "Ambients", "reading",    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", 200000),
-    Track("4", "Deep Focus",    "Ambients", "deep_work",  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", 300000),
-    Track("5", "Lo-fi Beats",   "Chillhop", "focus",      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", 220000)
-)

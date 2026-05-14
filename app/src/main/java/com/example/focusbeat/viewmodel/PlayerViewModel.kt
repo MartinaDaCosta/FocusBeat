@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.example.focusbeat.data.remote.FreesoundRetrofit
+import android.util.Log
 
 class PlayerViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -46,14 +48,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
 
     init {
 
-        viewModelScope.launch {
-
-            insertSampleTracksIfNeeded()
-
-            trackDao.getAllTracks().collect { trackList ->
-                _tracks.value = trackList
-            }
-        }
+        loadTracksFromFreesound()
 
         startProgressUpdater()
 
@@ -76,7 +71,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         )
     }
 
-    private suspend fun insertSampleTracksIfNeeded() {
+    /*private suspend fun insertSampleTracksIfNeeded() {
         if (trackDao.getTrackCount() == 0) {
             trackDao.insertAll(
                 listOf(
@@ -114,6 +109,61 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                     )
                 )
             )
+        }
+    }*/
+
+    private fun loadTracksFromFreesound() {
+        viewModelScope.launch {
+            try {
+                Log.d("FREESOUND", "Empezando carga...")
+
+                val apiKey = "M78S1FNu8010oVHDTZ5iiwWVdIFDvqOPgp36hIVJ"
+
+                val modes = listOf(
+                    "focus" to "ambient",
+                    "deep_work" to "piano",
+                    "reading" to "calm",
+                    "relaxation" to "rain"
+                )
+
+                val allTracks = mutableListOf<Track>()
+
+                modes.forEach { (mode, query) ->
+
+                    val response = FreesoundRetrofit.api.searchSounds(
+                        query = query,
+                        token = apiKey
+                    )
+
+                    Log.d("FREESOUND", "Modo $mode / búsqueda $query: ${response.results.size}")
+
+                    val tracksForMode = response.results.mapNotNull { sound ->
+                        val id = sound.id ?: return@mapNotNull null
+                        val title = sound.name ?: return@mapNotNull null
+                        val audioUrl = sound.previews?.previewHqMp3
+                            ?: sound.previews?.previewLqMp3
+                            ?: return@mapNotNull null
+
+                        Track(
+                            id = "${mode}_$id",
+                            title = title,
+                            artist = sound.username ?: "Unknown",
+                            mode = mode,
+                            audioUrl = audioUrl,
+                            durationMs = ((sound.duration ?: 0.0) * 1000).toLong()
+                        )
+                    }
+
+                    allTracks.addAll(tracksForMode)
+                }
+
+                _tracks.value = allTracks.distinctBy { it.id }
+
+                Log.d("FREESOUND", "Total canciones cargadas: ${_tracks.value.size}")
+
+            } catch (e: Exception) {
+                Log.e("FREESOUND", "Error cargando sonidos", e)
+            }
         }
     }
 
@@ -154,6 +204,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     fun nextTrack() {
 
         val list = _tracks.value
+        if (list.isEmpty()) return
         val current = _currentTrack.value ?: return
 
         val nextTrack = if (_isShuffle.value) {
@@ -178,6 +229,7 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     fun previousTrack() {
 
         val list = _tracks.value
+        if (list.isEmpty()) return
         val current = _currentTrack.value ?: return
 
         val prevTrack = if (_isShuffle.value) {

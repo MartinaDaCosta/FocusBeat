@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.focusbeat.viewmodel.FavouritesViewModel
+import com.example.focusbeat.viewmodel.HomeViewModel
 import com.example.focusbeat.viewmodel.StatsViewModel
 import com.example.focusbeat.viewmodel.TimerViewModel
 
@@ -45,6 +46,7 @@ fun FocusBeatNavHost(
     val currentUserId = currentUser?.id ?: -1
     val timerViewModel: TimerViewModel = viewModel()
     // ViewModel se recrea automáticamente cuando cambia el usuario
+    val homeViewModel: HomeViewModel = viewModel()
     val favouritesViewModel: FavouritesViewModel = viewModel(
         key = "favourites_$currentUserId"
     )
@@ -125,13 +127,26 @@ fun FocusBeatNavHost(
                 val favouriteIds by favouritesViewModel.favouriteIds.collectAsState()
                 HomeScreen(
                     tracks = tracks,
-                    onPlayClick = { playerViewModel.playTrack(it) },
-                    onToggleFavourite = { id -> favouritesViewModel.toggleFavourite(id) },
+                    onPlayClick = { track ->
+                        playerViewModel.playTrack(track)
+                    },
+                    onToggleFavourite = { track ->
+                        homeViewModel.toggleFavourite(
+                            track = track,
+                            isFav = track.id in favouriteIds
+                        )
+
+                        favouritesViewModel.refreshUserId()
+                    },
                     favouriteIds = favouriteIds
                 )
             }
 
-            composable(Screen.Search.route) { SearchScreen() }
+            composable(Screen.Search.route) {
+                SearchScreen(
+                    playerViewModel = playerViewModel
+                )
+            }
 
             composable(Screen.Timer.route) {
                 TimerScreen(
@@ -144,7 +159,9 @@ fun FocusBeatNavHost(
                 FavouritesScreen(
                     favouriteTracks = favouriteTracks,
                     onPlayClick = { playerViewModel.playTrack(it) },
-                    onToggleFavourite = { id -> favouritesViewModel.toggleFavourite(id) }
+                    onToggleFavourite = { track ->
+                        favouritesViewModel.toggleFavourite(track)
+                    }
                 )
             }
 
