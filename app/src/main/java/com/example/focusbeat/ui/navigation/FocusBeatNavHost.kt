@@ -71,7 +71,15 @@ fun FocusBeatNavHost(
         topBar = {
             if (!hideBottomUI) {
                 FocusBeatTopBar(
-                    onProfileClick = { navController.navigate(Screen.Profile.route) }
+                    onProfileClick = {
+                        navController.navigate(Screen.Profile.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 )
             }
         },
@@ -173,7 +181,6 @@ fun FocusBeatNavHost(
             composable(Screen.Profile.route) {
                 ProfileScreen(
                     authViewModel = authViewModel,
-                    onBack = { navController.popBackStack() },
                     onLogout = {
                         playerViewModel.stopAndReset()
                         navController.navigate(Screen.Login.route) {

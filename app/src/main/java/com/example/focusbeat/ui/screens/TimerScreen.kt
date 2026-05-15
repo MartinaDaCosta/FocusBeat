@@ -42,10 +42,20 @@ fun TimerScreen(
     val pomodorosToday by timerViewModel.pomodorosToday.collectAsState()
 
     val progress = timeLeftMs.toFloat() / mode.durationMs.toFloat()
+    val hasCustomDuration by timerViewModel.hasCustomDuration.collectAsState()
 
-    var customMinutes by remember(mode) {
+    var customMinutes by remember {
         mutableStateOf((mode.durationMs / 60000).toInt())
     }
+
+    LaunchedEffect(mode, hasCustomDuration, timeLeftMs) {
+        // Si NO hay custom duration, sincroniza customMinutes con el modo (o tiempo actual)
+        if (!hasCustomDuration) {
+            customMinutes = (timeLeftMs / 60000).toInt()
+        }
+    }
+
+
 
     Column(
         modifier = Modifier
@@ -130,7 +140,7 @@ fun TimerScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Session $currentSession of 4",
+            text = "Sesión $currentSession de 4",
             style = MaterialTheme.typography.labelMedium,
             color = colorScheme.onSurfaceVariant
         )
@@ -150,7 +160,7 @@ fun TimerScreen(
             colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
         ) {
             Text(
-                text = if (isRunning) "Pause" else "Start",
+                text = if (isRunning) "Pausar" else "Iniciar",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = colorScheme.onPrimary
@@ -161,7 +171,7 @@ fun TimerScreen(
 
         TextButton(onClick = { timerViewModel.reset() }) {
             Text(
-                text = "Reset",
+                text = "Resetear",
                 style = MaterialTheme.typography.labelLarge,
                 color = colorScheme.onSurfaceVariant
             )
@@ -181,7 +191,7 @@ fun TimerScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Pomodoros today",
+                    text = "Pomodoros de hoy",
                     style = MaterialTheme.typography.bodyMedium,
                     color = colorScheme.onSurfaceVariant
                 )
@@ -198,7 +208,7 @@ fun TimerScreen(
             Spacer(modifier = Modifier.height(12.dp))
             TextButton(onClick = onMusicClick) {
                 Text(
-                    text = "🎵 Change study music",
+                    text = "🎵 Cambiar música",
                     style = MaterialTheme.typography.labelLarge,
                     color = colorScheme.primary
                 )
@@ -318,7 +328,7 @@ fun ForestCircularPicker(
                 color = colorScheme.onBackground
             )
             Text(
-                text = "minutes",
+                text = "minutos",
                 style = MaterialTheme.typography.labelMedium,
                 color = colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium

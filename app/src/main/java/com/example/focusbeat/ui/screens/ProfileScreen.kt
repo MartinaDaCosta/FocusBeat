@@ -27,7 +27,6 @@ import com.example.focusbeat.viewmodel.AuthViewModel
 @Composable
 fun ProfileScreen(
     authViewModel: AuthViewModel,
-    onBack: () -> Unit,
     onLogout: () -> Unit,
     onFavourites: () -> Unit,
     onStats: () -> Unit,
@@ -51,13 +50,6 @@ fun ProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBackIosNew,
-                    contentDescription = "Volver",
-                    tint = colorScheme.primary
-                )
-            }
             Text(
                 text = "Mi perfil",
                 style = typography.titleLarge,

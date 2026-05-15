@@ -182,7 +182,7 @@ fun LoginScreen(
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 100.dp),
+                .padding(bottom = 75.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(

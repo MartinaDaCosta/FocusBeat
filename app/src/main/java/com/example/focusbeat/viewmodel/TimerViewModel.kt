@@ -41,6 +41,9 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     private val _pomodorosToday = MutableStateFlow(0)
     val pomodorosToday: StateFlow<Int> = _pomodorosToday.asStateFlow()
 
+    private val _hasCustomDuration = MutableStateFlow(false)
+    val hasCustomDuration: StateFlow<Boolean> = _hasCustomDuration.asStateFlow()
+
     // Lista de sesiones agrupadas por fecha para el historial
     val allSessions = sessionDao.getAllSessions()
 
@@ -61,6 +64,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         pause()
         _mode.value = newMode
         _timeLeftMs.value = newMode.durationMs
+        _hasCustomDuration.value = false
     }
 
     fun startOrResume() {
@@ -126,6 +130,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     fun setCustomDuration(durationMs: Long) {
         if (!isRunning.value) {
             _timeLeftMs.value = durationMs
+            _hasCustomDuration.value = true
         }
     }
 
