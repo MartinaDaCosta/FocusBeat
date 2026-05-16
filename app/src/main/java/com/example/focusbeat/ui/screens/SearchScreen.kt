@@ -15,6 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.focusbeat.data.model.Track
 import com.example.focusbeat.viewmodel.PlayerViewModel
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.ui.Alignment
+
 
 @Composable
 fun SearchScreen(
@@ -24,6 +28,7 @@ fun SearchScreen(
     val typography = MaterialTheme.typography
 
     val tracks by playerViewModel.tracks.collectAsState()
+    val favouriteTrackIds by playerViewModel.favouriteTrackIds.collectAsState()
 
     var searchText by remember { mutableStateOf("") }
     var selectedMode by remember { mutableStateOf<String?>(null) }
@@ -130,7 +135,15 @@ fun SearchScreen(
             items(filteredTracks) { track ->
                 SearchTrackItem(
                     track = track,
-                    onClick = { playerViewModel.playTrack(track) }
+                    isFavourite = favouriteTrackIds.contains(track.id),
+                    onClick = { playerViewModel.playTrack(track) },
+                    onFavouriteClick = {
+                        if (favouriteTrackIds.contains(track.id)) {
+                            playerViewModel.removeFavourite(track)
+                        } else {
+                            playerViewModel.addFavourite(track)
+                        }
+                    }
                 )
             }
         }
@@ -140,7 +153,9 @@ fun SearchScreen(
 @Composable
 fun SearchTrackItem(
     track: Track,
-    onClick: () -> Unit
+    isFavourite: Boolean,
+    onClick: () -> Unit,
+    onFavouriteClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -154,24 +169,52 @@ fun SearchTrackItem(
         ),
         shape = RoundedCornerShape(18.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = track.title,
-                style = typography.titleMedium,
-                color = colorScheme.onSurface
-            )
-            Text(
-                text = track.artist,
-                style = typography.bodyMedium,
-                color = colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = subtitleForMode(track.mode),
-                style = typography.labelMedium,
-                color = colorScheme.onSurfaceVariant
-            )
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = track.title,
+                    style = typography.titleMedium,
+                    color = colorScheme.onSurface
+                )
+                Text(
+                    text = track.artist,
+                    style = typography.bodyMedium,
+                    color = colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = subtitleForMode(track.mode),
+                    style = typography.labelMedium,
+                    color = colorScheme.onSurfaceVariant
+                )
+            }
+            IconButton(
+                onClick = { onFavouriteClick() }
+            ) {
+                Icon(
+                    imageVector = if (isFavourite) {
+                        Icons.Default.Favorite
+                    } else {
+                        Icons.Outlined.FavoriteBorder
+                    },
+                    contentDescription = if (isFavourite) {
+                        "Remove from favourites"
+                    } else {
+                        "Add to favourites"
+                    },
+                    tint = if (isFavourite) {
+                        colorScheme.primary
+                    } else {
+                        colorScheme.onSurfaceVariant
+                    }
+                )
+            }
         }
     }
 }

@@ -16,6 +16,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.focusbeat.data.remote.FreesoundRetrofit
 import android.util.Log
+import com.example.focusbeat.data.model.Favourite
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class PlayerViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -25,6 +29,23 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
 
     private val session = SessionManager(application)
     val exoPlayer: ExoPlayer = ExoPlayer.Builder(application).build()
+
+    private val userId = session.getUserId()
+
+    val favouriteTrackIds: StateFlow<Set<String>> =
+        if (userId != -1) {
+            favouriteDao.getAllFavourites(userId)
+                .map { favourites ->
+                    favourites.map { it.trackId }.toSet()
+                }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5000),
+                    initialValue = emptySet()
+                )
+        } else {
+            MutableStateFlow(emptySet())
+        }
 
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
     val tracks: StateFlow<List<Track>> = _tracks.asStateFlow()
@@ -70,47 +91,6 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             }
         )
     }
-
-    /*private suspend fun insertSampleTracksIfNeeded() {
-        if (trackDao.getTrackCount() == 0) {
-            trackDao.insertAll(
-                listOf(
-                    Track(
-                        id = "track_1",
-                        title = "Focus Rain",
-                        artist = "SoundHelix",
-                        mode = "focus",
-                        audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-                        durationMs = 348000
-                    ),
-                    Track(
-                        id = "track_2",
-                        title = "Deep Work Flow",
-                        artist = "SoundHelix",
-                        mode = "deep_work",
-                        audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-                        durationMs = 372000
-                    ),
-                    Track(
-                        id = "track_3",
-                        title = "Reading Ambient",
-                        artist = "SoundHelix",
-                        mode = "reading",
-                        audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-                        durationMs = 298000
-                    ),
-                    Track(
-                        id = "track_4",
-                        title = "Relax Nature",
-                        artist = "SoundHelix",
-                        mode = "relaxation",
-                        audioUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-                        durationMs = 415000
-                    )
-                )
-            )
-        }
-    }*/
 
     private fun loadTracksFromFreesound() {
         viewModelScope.launch {
@@ -280,5 +260,31 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
         _currentTrack.value = null
     }
 
+    fun addFavourite(track: Track) {
+        viewModelScope.launch {
+            val userId = session.getUserId()
+
+            if (userId != -1) {
+                favouriteDao.addFavourite(
+                    Favourite(
+                        trackId = track.id,
+                        userId = userId
+                    )
+                )
+            }
+        }
+    }
+    fun removeFavourite(track: Track) {
+        viewModelScope.launch {
+            val userId = session.getUserId()
+
+            if (userId != -1) {
+                favouriteDao.removeFavouriteById(
+                    trackId = track.id,
+                    userId = userId
+                )
+            }
+        }
+    }
 
 }

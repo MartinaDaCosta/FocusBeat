@@ -82,7 +82,9 @@ fun FavouriteTrackCard(
     val typography = MaterialTheme.typography
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onPlayClick() },
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
             containerColor = colorScheme.surface
@@ -114,23 +116,18 @@ fun FavouriteTrackCard(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                TextButton(
-                    onClick = onPlayClick,
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = modeChipBackground(track.mode),
                     modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(modeChipBackground(track.mode))
-                        .height(34.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = modeChipText(track.mode),
-                        containerColor = androidx.compose.ui.graphics.Color.Transparent
-                    )
+                        .heightIn(min = 36.dp)
                 ) {
                     Text(
                         text = modeChipLabel(track.mode),
                         style = typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = modeChipText(track.mode)
+                        color = modeChipText(track.mode),
+                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp)
                     )
                 }
             }
