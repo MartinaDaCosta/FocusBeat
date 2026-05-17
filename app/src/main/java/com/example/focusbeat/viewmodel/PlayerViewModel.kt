@@ -30,22 +30,8 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     private val session = SessionManager(application)
     val exoPlayer: ExoPlayer = ExoPlayer.Builder(application).build()
 
-    private val userId = session.getUserId()
-
-    val favouriteTrackIds: StateFlow<Set<String>> =
-        if (userId != -1) {
-            favouriteDao.getAllFavourites(userId)
-                .map { favourites ->
-                    favourites.map { it.trackId }.toSet()
-                }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(5000),
-                    initialValue = emptySet()
-                )
-        } else {
-            MutableStateFlow(emptySet())
-        }
+    private val _favouriteTrackIds = MutableStateFlow<Set<String>>(emptySet())
+    val favouriteTrackIds: StateFlow<Set<String>> = _favouriteTrackIds.asStateFlow()
 
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
     val tracks: StateFlow<List<Track>> = _tracks.asStateFlow()
@@ -68,24 +54,17 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
     val duration: StateFlow<Long> = _duration.asStateFlow()
 
     init {
-
         loadTracksFromFreesound()
-
+        loadFavouriteIds()
         startProgressUpdater()
 
         exoPlayer.addListener(
             object : Player.Listener {
-
                 override fun onPlaybackStateChanged(state: Int) {
-
-                    if (state ==
-                        Player.STATE_ENDED
-                    ) {
-
+                    if (state == Player.STATE_ENDED) {
                         if (!_isRepeat.value) {
                             nextTrack()
                         }
-
                     }
                 }
             }
@@ -265,12 +244,16 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
             val userId = session.getUserId()
 
             if (userId != -1) {
+                trackDao.insertAll(listOf(track))
+
                 favouriteDao.addFavourite(
                     Favourite(
                         trackId = track.id,
                         userId = userId
                     )
                 )
+
+                _favouriteTrackIds.value = _favouriteTrackIds.value + track.id
             }
         }
     }
@@ -283,6 +266,19 @@ class PlayerViewModel(application: Application) : AndroidViewModel(application) 
                     trackId = track.id,
                     userId = userId
                 )
+
+                _favouriteTrackIds.value = _favouriteTrackIds.value - track.id
+            }
+        }
+    }
+    fun loadFavouriteIds() {
+        viewModelScope.launch {
+            val userId = session.getUserId()
+
+            if (userId != -1) {
+                favouriteDao.getAllFavourites(userId).collect { favourites ->
+                    _favouriteTrackIds.value = favourites.map { it.trackId }.toSet()
+                }
             }
         }
     }
